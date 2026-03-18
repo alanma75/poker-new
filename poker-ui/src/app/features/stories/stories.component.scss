@@ -53,4 +53,23 @@
     justify-content: flex-end;
     margin-top: 1.25rem;
   }
+
+  .field-checkbox {
+    margin-top: 0.25rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #495057;
+
+    input[type='checkbox'] {
+      width: 1rem;
+      height: 1rem;
+      cursor: pointer;
+    }
+  }
 }

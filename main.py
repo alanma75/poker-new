@@ -104,7 +104,16 @@ def create_session(body: CreateVotingSession):
 def get_session(session_id: str):
     session = _find_session(session_id)
     if not session["Revealed"]:
-        masked = {**session, "Votes": [{"id": v["id"], "Participant": v["Participant"], "Points": "?"} for v in session["Votes"]]}
+        masked_votes = []
+        for vote in session["Votes"]:
+            masked_votes.append(
+                {
+                    "id": vote["id"],
+                    "Participant": vote["Participant"],
+                    "Points": "?" if vote["Points"] != "" else "",
+                }
+            )
+        masked = {**session, "Votes": masked_votes}
         return masked
     return session
 
@@ -132,7 +141,10 @@ def reveal_votes(session_id: str):
 def reset_session(session_id: str):
     session = _find_session(session_id)
     session["Revealed"] = False
-    session["Votes"] = []
+    session["Votes"] = [
+        {"id": vote["id"], "Participant": vote["Participant"], "Points": ""}
+        for vote in session["Votes"]
+    ]
     return session
 
 

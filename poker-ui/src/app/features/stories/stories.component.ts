@@ -30,7 +30,8 @@ export class StoriesComponent implements OnInit {
   });
 
   registrationForm = this.fb.group({
-    ParticipantName: ['', Validators.required]
+    ParticipantName: ['', Validators.required],
+    IsScrumMaster: [false]
   });
 
   ngOnInit() {
@@ -78,6 +79,7 @@ export class StoriesComponent implements OnInit {
     if (this.registrationForm.invalid || !this.pendingStory()) return;
     const story = this.pendingStory()!;
     const participantName = this.registrationForm.value.ParticipantName!;
+    const isScrumMaster = !!this.registrationForm.value.IsScrumMaster;
     this.joining.set(true);
     const sessionName = `Voting: ${story.Name}`;
     this.api.getSessions().pipe(
@@ -89,7 +91,7 @@ export class StoriesComponent implements OnInit {
       next: (session) => {
         this.joining.set(false);
         this.pendingStory.set(null);
-        this.router.navigate(['/vote', session.id], { state: { participant: participantName } });
+        this.router.navigate(['/vote', session.id], { state: { participant: participantName, isScrumMaster } });
       },
       error: () => {
         this.joining.set(false);

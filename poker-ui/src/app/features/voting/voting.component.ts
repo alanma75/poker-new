@@ -25,6 +25,7 @@ export class VotingComponent implements OnInit {
   error = signal('');
   voted = signal(false);
   currentParticipant = signal('');
+  isScrumMaster = signal(false);
   readonly points = POINTS;
 
   form = this.fb.group({
@@ -36,16 +37,31 @@ export class VotingComponent implements OnInit {
     return this.route.snapshot.paramMap.get('id') ?? '';
   }
 
+  private getStorageKey(): string {
+    return `vote-session:${this.sessionId}`;
+  }
+
   ngOnInit() {
-    const state = history.state as { participant?: string };
-    if (state?.participant) {
-      this.currentParticipant.set(state.participant);
-      this.form.patchValue({ Participant: state.participant });
-      // Post a placeholder vote immediately so everyone can see this participant has joined
-      this.api.castVote(this.sessionId, state.participant, '').subscribe({
-        next: () => this.loadSession(),
-        error: () => this.loadSession()
-      });
+    const state = history.state as { participant?: string; isScrumMaster?: boolean };
+    const saved = sessionStorage.getItem(this.getStorageKey());
+    const savedState = saved ? JSON.parse(saved) as { participant?: string; isScrumMaster?: boolean } : {};
+    const participant = state?.participant ?? savedState.participant;
+    const isScrumMaster = state?.isScrumMaster ?? savedState.isScrumMaster ?? false;
+
+    if (participant) {
+      sessionStorage.setItem(this.getStorageKey(), JSON.stringify({ participant, isScrumMaster }));
+      this.currentParticipant.set(participant);
+      this.isScrumMaster.set(!!isScrumMaster);
+      this.form.patchValue({ Participant: participant });
+      if (!isScrumMaster) {
+        // Post a placeholder vote immediately so everyone can see this participant has joined
+        this.api.castVote(this.sessionId, participant, '').subscribe({
+          next: () => this.loadSession(),
+          error: () => this.loadSession()
+        });
+      } else {
+        this.loadSession();
+      }
     } else {
       this.loadSession();
     }
@@ -64,11 +80,22 @@ export class VotingComponent implements OnInit {
   }
 
   castVote() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.isScrumMaster()) return;
     const { Participant, Points } = this.form.value;
     this.api.castVote(this.sessionId, Participant!, Points!).subscribe({
       next: () => { this.voted.set(true); this.loadSession(); },
       error: () => this.error.set('Failed to cast vote')
+    });
+  }
+
+  /** Get votes excluding the Scrum Master */
+  getFilteredVotes(s: Session): typeof s.Votes {
+    const currentParticipant = this.currentParticipant().trim().toLowerCase();
+    return s.Votes.filter(v => {
+      if (!this.isScrumMaster()) {
+        return true;
+      }
+      return v.Participant.trim().toLowerCase() !== currentParticipant;
     });
   }
 
@@ -104,6 +131,10 @@ export class VotingComponent implements OnInit {
 
   /** Returns total vote count including any pending (unvoted) current participant. */
   getTotalVoteCount(s: Session): number {
-    return s.Votes.length + (this.currentParticipant() && !this.hasVoted(s) ? 1 : 0);
+    const filteredVotes = this.getFilteredVotes(s);
+    if (this.isScrumMaster()) {
+      return filteredVotes.length;
+    }
+    return filteredVotes.length + (this.currentParticipant() && !this.hasVoted(s) ? 1 : 0);
   }
 }

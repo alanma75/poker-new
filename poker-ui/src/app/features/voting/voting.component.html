@@ -8,44 +8,53 @@
       <h1>🃏 {{ s.Name }}</h1>
 
       @if (currentParticipant()) {
-        <p class="participant-badge">👤 Voting as <strong>{{ currentParticipant() }}</strong></p>
+        <p class="participant-badge">👤 User: <strong>{{ currentParticipant() }}</strong></p>
       }
 
       @if (error()) { <p class="error">{{ error() }}</p> }
 
       <!-- Vote form (hidden after voting until reset) -->
       @if (!s.Revealed) {
-        <form [formGroup]="form" (ngSubmit)="castVote()">
-          @if (!currentParticipant()) {
-            <div class="field">
-              <label>Your name</label>
-              <input formControlName="Participant" placeholder="Alice" />
-            </div>
-          }
-
-          <div class="field">
-            <label>Pick your points</label>
-            <div class="point-cards">
-              @for (p of points; track p) {
-                <button type="button"
-                  class="point-card"
-                  [class.selected]="form.value.Points === p"
-                  (click)="selectPoint(p)">
-                  {{ p }}
-                </button>
-              }
-            </div>
-          </div>
-
-          <div class="actions">
-            <button type="submit" [disabled]="form.invalid">
-              {{ voted() ? '🔄 Update vote' : '✅ Cast vote' }}
-            </button>
+        @if (isScrumMaster()) {
+          <!-- Scrum Master: no vote card, just the reveal button -->
+          <div class="actions scrum-master-actions">
+            <p class="scrum-master-badge">🎯 You are the Scrum Master</p>
             @if (s.Votes.length > 0) {
-              <button type="button" class="secondary" (click)="reveal()">👁 Reveal votes</button>
+              <button type="button" (click)="reveal()">👁 Reveal votes</button>
+            } @else {
+              <p class="empty">Waiting for participants to vote…</p>
             }
           </div>
-        </form>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="castVote()">
+            @if (!currentParticipant()) {
+              <div class="field">
+                <label>Your name</label>
+                <input formControlName="Participant" placeholder="Alice" />
+              </div>
+            }
+
+            <div class="field">
+              <label>Pick your points</label>
+              <div class="point-cards">
+                @for (p of points; track p) {
+                  <button type="button"
+                    class="point-card"
+                    [class.selected]="form.value.Points === p"
+                    (click)="selectPoint(p)">
+                    {{ p }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" [disabled]="form.invalid">
+                {{ voted() ? '🔄 Update vote' : '✅ Cast vote' }}
+              </button>
+            </div>
+          </form>
+        }
       }
 
       <!-- Votes table -->
@@ -53,20 +62,22 @@
         <h2>Votes ({{ getTotalVoteCount(s) }})</h2>
         <table>
           <thead>
-            <tr><th>Participant</th><th>Points</th></tr>
+            <tr><th>Participant</th><th>Points</th><th>Has Voted</th></tr>
           </thead>
           <tbody>
             <!-- Show current participant with empty vote if they haven't voted yet -->
-            @if (currentParticipant() && !hasVoted(s)) {
+            @if (!isScrumMaster() && currentParticipant() && !hasVoted(s)) {
               <tr class="pending-vote">
                 <td>{{ currentParticipant() }}</td>
                 <td class="points-cell hidden">—</td>
+                <td>No</td>
               </tr>
             }
-            @for (v of s.Votes; track v.id) {
+            @for (v of getFilteredVotes(s); track v.id) {
               <tr>
                 <td>{{ v.Participant }}</td>
                 <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points || '—' }}</td>
+                <td>{{ v.Points != null && v.Points !== '' ? 'Yes' : 'No' }}</td>
               </tr>
             }
           </tbody>

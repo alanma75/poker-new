@@ -68,3 +68,20 @@
 
   &:hover { text-decoration: underline; }
 }
+
+.scrum-master-badge {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: #856404;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.scrum-master-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
