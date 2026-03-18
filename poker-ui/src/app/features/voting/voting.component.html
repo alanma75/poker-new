@@ -1,0 +1,74 @@
+<div class="page">
+  <button class="back" (click)="back()">← Back to stories</button>
+
+  @if (loading()) {
+    <p>Loading session…</p>
+  } @else if (session(); as s) {
+    <div class="card">
+      <h1>🃏 {{ s.Name }}</h1>
+
+      @if (error()) { <p class="error">{{ error() }}</p> }
+
+      <!-- Vote form (hidden after voting until reset) -->
+      @if (!s.Revealed) {
+        <form [formGroup]="form" (ngSubmit)="castVote()">
+          <div class="field">
+            <label>Your name</label>
+            <input formControlName="Participant" placeholder="Alice" />
+          </div>
+
+          <div class="field">
+            <label>Pick your points</label>
+            <div class="point-cards">
+              @for (p of points; track p) {
+                <button type="button"
+                  class="point-card"
+                  [class.selected]="form.value.Points === p"
+                  (click)="selectPoint(p)">
+                  {{ p }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" [disabled]="form.invalid">
+              {{ voted() ? '🔄 Update vote' : '✅ Cast vote' }}
+            </button>
+            @if (s.Votes.length > 0) {
+              <button type="button" class="secondary" (click)="reveal()">👁 Reveal votes</button>
+            }
+          </div>
+        </form>
+      }
+
+      <!-- Votes table -->
+      <div class="votes">
+        <h2>Votes ({{ s.Votes.length }})</h2>
+        @if (s.Votes.length === 0) {
+          <p class="empty">No votes yet.</p>
+        } @else {
+          <table>
+            <thead>
+              <tr><th>Participant</th><th>Points</th></tr>
+            </thead>
+            <tbody>
+              @for (v of s.Votes; track v.id) {
+                <tr>
+                  <td>{{ v.Participant }}</td>
+                  <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          @if (s.Revealed) {
+            <button class="secondary" (click)="reset()">🔁 New round</button>
+          }
+        }
+      </div>
+    </div>
+  } @else {
+    <p class="error">{{ error() || 'Session not found' }}</p>
+  }
+</div>

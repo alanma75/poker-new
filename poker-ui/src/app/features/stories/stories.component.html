@@ -1,0 +1,43 @@
+<div class="page">
+  <h1>🃏 Planning Poker</h1>
+
+  <!-- Create story form -->
+  <section class="card">
+    <h2>New User Story</h2>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label>Name</label>
+        <input formControlName="Name" placeholder="As a user, I want to…" />
+      </div>
+      <div class="field">
+        <label>Comment</label>
+        <input formControlName="Comment" placeholder="Acceptance criteria…" />
+      </div>
+      <button type="submit" [disabled]="form.invalid">Add Story</button>
+    </form>
+  </section>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <!-- Story list -->
+  <section class="card">
+    <h2>Stories</h2>
+    @if (loading()) {
+      <p>Loading…</p>
+    } @else if (stories().length === 0) {
+      <p class="empty">No stories yet. Add one above.</p>
+    } @else {
+      <ul class="story-list">
+        @for (story of stories(); track story.id) {
+          <li class="story-item" (click)="selectStory(story)">
+            <div class="story-name">{{ story.Name }}</div>
+            <div class="story-comment">{{ story.Comment }}</div>
+            <span class="vote-btn">▶ Vote</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

@@ -1,0 +1,55 @@
+.point-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.point-card {
+  width: 52px;
+  height: 72px;
+  border: 2px solid #ced4da;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: #3b5bdb; color: #3b5bdb; }
+  &.selected { background: #3b5bdb; color: #fff; border-color: #3b5bdb; }
+}
+
+.votes {
+  margin-top: 1.5rem;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th { font-weight: 600; color: #495057; }
+  }
+}
+
+.points-cell.hidden {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #3b5bdb;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  margin-bottom: 1rem;
+
+  &:hover { text-decoration: underline; }
+}
