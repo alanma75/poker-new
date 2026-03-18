@@ -41,3 +41,25 @@
     }
   </section>
 </div>
+
+<!-- Registration overlay -->
+@if (pendingStory()) {
+  <div class="overlay" (click)="cancelRegistration()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <h2>Join Voting Session</h2>
+      <p class="dialog-story">{{ pendingStory()!.Name }}</p>
+      <form [formGroup]="registrationForm" (ngSubmit)="confirmRegistration()">
+        <div class="field">
+          <label>Your name</label>
+          <input formControlName="ParticipantName" placeholder="Enter your name" autofocus />
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="secondary" (click)="cancelRegistration()">Cancel</button>
+          <button type="submit" [disabled]="registrationForm.invalid || joining()">
+            {{ joining() ? 'Joining…' : '▶ Join & Vote' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

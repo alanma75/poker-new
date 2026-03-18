@@ -1,0 +1,8 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Angular build output
+poker-ui/dist/
+poker-ui/node_modules/
