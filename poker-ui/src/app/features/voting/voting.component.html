@@ -87,8 +87,10 @@
           <p class="empty">No votes yet.</p>
         }
 
-        @if (s.Revealed) {
-          <button class="secondary" (click)="reset()">🔁 New round</button>
+        @if (s.Revealed && isScrumMaster()) {
+          <div class="new-round-box">
+            <button class="secondary" (click)="reset()">🔁 New round</button>
+          </div>
         }
       </div>
     </div>

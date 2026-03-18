@@ -31,6 +31,11 @@ export class ApiService {
     return this.http.get<Session>(`${BASE}/sessions/${id}`);
   }
 
+  getSessionWebSocketUrl(id: string): string {
+    const wsBase = BASE.replace(/^http/i, 'ws');
+    return `${wsBase}/ws/sessions/${id}`;
+  }
+
   castVote(sessionId: string, Participant: string, Points: string): Observable<Vote> {
     return this.http.post<Vote>(`${BASE}/sessions/${sessionId}/votes`, { Participant, Points });
   }

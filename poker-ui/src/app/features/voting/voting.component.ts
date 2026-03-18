@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -14,7 +14,7 @@ export const POINTS = ['0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89
   templateUrl: './voting.component.html',
   styleUrl: './voting.component.scss'
 })
-export class VotingComponent implements OnInit {
+export class VotingComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -27,6 +27,7 @@ export class VotingComponent implements OnInit {
   currentParticipant = signal('');
   isScrumMaster = signal(false);
   readonly points = POINTS;
+  private sessionSocket: WebSocket | null = null;
 
   form = this.fb.group({
     Participant: ['', Validators.required],
@@ -41,7 +42,28 @@ export class VotingComponent implements OnInit {
     return `vote-session:${this.sessionId}`;
   }
 
+  private connectLiveUpdates() {
+    const socket = new WebSocket(this.api.getSessionWebSocketUrl(this.sessionId));
+    this.sessionSocket = socket;
+
+    socket.onmessage = (event) => {
+      try {
+        const liveSession = JSON.parse(event.data) as Session;
+        this.session.set(liveSession);
+        this.loading.set(false);
+      } catch {
+      }
+    };
+
+    socket.onclose = () => {
+      if (this.sessionSocket === socket) {
+        this.sessionSocket = null;
+      }
+    };
+  }
+
   ngOnInit() {
+    this.connectLiveUpdates();
     const state = history.state as { participant?: string; isScrumMaster?: boolean };
     const saved = sessionStorage.getItem(this.getStorageKey());
     const savedState = saved ? JSON.parse(saved) as { participant?: string; isScrumMaster?: boolean } : {};
@@ -65,6 +87,11 @@ export class VotingComponent implements OnInit {
     } else {
       this.loadSession();
     }
+  }
+
+  ngOnDestroy() {
+    this.sessionSocket?.close();
+    this.sessionSocket = null;
   }
 
   loadSession() {
