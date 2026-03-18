@@ -19,6 +19,10 @@ export class ApiService {
   }
 
   // ── Sessions ─────────────────────────────────────────────────────────────
+  getSessions(): Observable<Session[]> {
+    return this.http.get<Session[]>(`${BASE}/sessions`);
+  }
+
   createSession(Name: string, StoryId: string): Observable<Session> {
     return this.http.post<Session>(`${BASE}/sessions`, { Name, StoryId });
   }

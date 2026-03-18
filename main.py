@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-VALID_POINTS = {"0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "?", "∞"}
+VALID_POINTS = {"", "0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "?", "∞"}
 
 # In-memory stores
 user_stories: List[dict] = []

@@ -41,8 +41,14 @@ export class VotingComponent implements OnInit {
     if (state?.participant) {
       this.currentParticipant.set(state.participant);
       this.form.patchValue({ Participant: state.participant });
+      // Post a placeholder vote immediately so everyone can see this participant has joined
+      this.api.castVote(this.sessionId, state.participant, '').subscribe({
+        next: () => this.loadSession(),
+        error: () => this.loadSession()
+      });
+    } else {
+      this.loadSession();
     }
-    this.loadSession();
   }
 
   loadSession() {
@@ -91,7 +97,7 @@ export class VotingComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  /** Returns true if the current participant has already cast a vote in the session. */
+  /** Returns true if the current participant has any vote entry in the session (including join placeholder). */
   hasVoted(s: Session): boolean {
     return s.Votes.some(v => v.Participant === this.currentParticipant());
   }

@@ -6,3 +6,7 @@ __pycache__/
 # Angular build output
 poker-ui/dist/
 poker-ui/node_modules/
+
+/poker-ui/.vscode/extensions.json
+/poker-ui/.vscode/launch.json
+/poker-ui/.vscode/tasks.json

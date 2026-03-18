@@ -66,7 +66,7 @@
             @for (v of s.Votes; track v.id) {
               <tr>
                 <td>{{ v.Participant }}</td>
-                <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points }}</td>
+                <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points || '—' }}</td>
               </tr>
             }
           </tbody>

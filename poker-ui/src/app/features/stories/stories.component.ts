@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, HostListener } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { switchMap, of } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { Story } from '../../core/models';
 
@@ -79,7 +80,12 @@ export class StoriesComponent implements OnInit {
     const participantName = this.registrationForm.value.ParticipantName!;
     this.joining.set(true);
     const sessionName = `Voting: ${story.Name}`;
-    this.api.createSession(sessionName, story.id).subscribe({
+    this.api.getSessions().pipe(
+      switchMap(sessions => {
+        const existing = sessions.find(s => s.StoryId === story.id && !s.Revealed);
+        return existing ? of(existing) : this.api.createSession(sessionName, story.id);
+      })
+    ).subscribe({
       next: (session) => {
         this.joining.set(false);
         this.pendingStory.set(null);
@@ -87,7 +93,7 @@ export class StoriesComponent implements OnInit {
       },
       error: () => {
         this.joining.set(false);
-        this.error.set('Failed to create voting session');
+        this.error.set('Failed to join voting session');
       }
     });
   }
