@@ -53,6 +53,12 @@
           <label>Your name</label>
           <input formControlName="ParticipantName" placeholder="Enter your name" autofocus />
         </div>
+        <div class="field field-checkbox">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="IsScrumMaster" />
+            I am the Scrum Master (reveal votes, no card)
+          </label>
+        </div>
         <div class="dialog-actions">
           <button type="button" class="secondary" (click)="cancelRegistration()">Cancel</button>
           <button type="submit" [disabled]="registrationForm.invalid || joining()">
