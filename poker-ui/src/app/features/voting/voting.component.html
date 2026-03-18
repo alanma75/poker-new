@@ -50,7 +50,7 @@
 
       <!-- Votes table -->
       <div class="votes">
-        <h2>Votes ({{ s.Votes.length + (currentParticipant() && !hasVoted(s) ? 1 : 0) }})</h2>
+        <h2>Votes ({{ getTotalVoteCount(s) }})</h2>
         <table>
           <thead>
             <tr><th>Participant</th><th>Points</th></tr>

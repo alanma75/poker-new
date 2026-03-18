@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, HostListener } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -64,6 +64,13 @@ export class StoriesComponent implements OnInit {
   cancelRegistration() {
     this.pendingStory.set(null);
     this.registrationForm.reset();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    if (this.pendingStory()) {
+      this.cancelRegistration();
+    }
   }
 
   confirmRegistration() {

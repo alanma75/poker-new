@@ -75,7 +75,14 @@ export class VotingComponent implements OnInit {
 
   reset() {
     this.api.resetSession(this.sessionId).subscribe({
-      next: (s) => { this.session.set(s); this.voted.set(false); this.form.patchValue({ Points: '' }); },
+      next: (s) => {
+        this.session.set(s);
+        this.voted.set(false);
+        this.form.reset();
+        if (this.currentParticipant()) {
+          this.form.patchValue({ Participant: this.currentParticipant() });
+        }
+      },
       error: () => this.error.set('Failed to reset session')
     });
   }
@@ -87,5 +94,10 @@ export class VotingComponent implements OnInit {
   /** Returns true if the current participant has already cast a vote in the session. */
   hasVoted(s: Session): boolean {
     return s.Votes.some(v => v.Participant === this.currentParticipant());
+  }
+
+  /** Returns total vote count including any pending (unvoted) current participant. */
+  getTotalVoteCount(s: Session): number {
+    return s.Votes.length + (this.currentParticipant() && !this.hasVoted(s) ? 1 : 0);
   }
 }
