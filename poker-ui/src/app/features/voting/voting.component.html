@@ -7,15 +7,21 @@
     <div class="card">
       <h1>🃏 {{ s.Name }}</h1>
 
+      @if (currentParticipant()) {
+        <p class="participant-badge">👤 Voting as <strong>{{ currentParticipant() }}</strong></p>
+      }
+
       @if (error()) { <p class="error">{{ error() }}</p> }
 
       <!-- Vote form (hidden after voting until reset) -->
       @if (!s.Revealed) {
         <form [formGroup]="form" (ngSubmit)="castVote()">
-          <div class="field">
-            <label>Your name</label>
-            <input formControlName="Participant" placeholder="Alice" />
-          </div>
+          @if (!currentParticipant()) {
+            <div class="field">
+              <label>Your name</label>
+              <input formControlName="Participant" placeholder="Alice" />
+            </div>
+          }
 
           <div class="field">
             <label>Pick your points</label>
@@ -44,27 +50,34 @@
 
       <!-- Votes table -->
       <div class="votes">
-        <h2>Votes ({{ s.Votes.length }})</h2>
-        @if (s.Votes.length === 0) {
-          <p class="empty">No votes yet.</p>
-        } @else {
-          <table>
-            <thead>
-              <tr><th>Participant</th><th>Points</th></tr>
-            </thead>
-            <tbody>
-              @for (v of s.Votes; track v.id) {
-                <tr>
-                  <td>{{ v.Participant }}</td>
-                  <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <h2>Votes ({{ getTotalVoteCount(s) }})</h2>
+        <table>
+          <thead>
+            <tr><th>Participant</th><th>Points</th></tr>
+          </thead>
+          <tbody>
+            <!-- Show current participant with empty vote if they haven't voted yet -->
+            @if (currentParticipant() && !hasVoted(s)) {
+              <tr class="pending-vote">
+                <td>{{ currentParticipant() }}</td>
+                <td class="points-cell hidden">—</td>
+              </tr>
+            }
+            @for (v of s.Votes; track v.id) {
+              <tr>
+                <td>{{ v.Participant }}</td>
+                <td class="points-cell" [class.hidden]="!s.Revealed">{{ v.Points }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
 
-          @if (s.Revealed) {
-            <button class="secondary" (click)="reset()">🔁 New round</button>
-          }
+        @if (s.Votes.length === 0 && !currentParticipant()) {
+          <p class="empty">No votes yet.</p>
+        }
+
+        @if (s.Revealed) {
+          <button class="secondary" (click)="reset()">🔁 New round</button>
         }
       </div>
     </div>

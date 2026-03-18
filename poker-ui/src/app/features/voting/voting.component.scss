@@ -1,3 +1,18 @@
+.participant-badge {
+  background: #f0f4ff;
+  border: 1px solid #c5d0fa;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: #3b5bdb;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.pending-vote td {
+  color: #adb5bd;
+  font-style: italic;
+}
+
 .point-cards {
   display: flex;
   flex-wrap: wrap;
